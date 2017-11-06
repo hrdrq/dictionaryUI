@@ -1,7 +1,7 @@
 <template>
   <q-layout ref="layout" view="lHh Lpr FFF">
     <div class="row">
-      <div class="col"><q-input v-model="word" placeholder="単語" @keydown.enter="search(word)" autofocus /></div>
+      <div class="col"><q-input v-model="word" placeholder="単語" @keydown.enter="word=word.replace(/[ 　]/g, '');search(word)" autofocus /></div>
       <div class="col"><q-input v-model="alternativeWord" placeholder="代替検索" @keydown.enter="alternativeSearch(alternativeWord)" /></div>
       <div class="col">
         <q-toggle class="menu" v-model="ja.multiple" label="複数" />
@@ -229,7 +229,9 @@ export default {
         console.log('search no word')
         return
       }
-      word = word.replace(/ /g, '')
+      /* eslint-disable */
+      word = word.replace(/[ 　]/g, '')
+      /* eslint-enable */
       console.log('search[' + word + ']')
       document.activeElement.blur()
       this.resetJa()

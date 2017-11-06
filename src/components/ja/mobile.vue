@@ -5,7 +5,7 @@
         <q-icon name="menu" />
       </q-btn>
       <q-input ref="word" icon="" inverted dark v-model="word" class="no-shadow" placeholder="単語" 
-        @keydown.enter="search(word)" autofocus
+        @keydown.enter="word=word.replace(/[ 　]/g, '');search(word)" autofocus
       />
       <!-- <q-toolbar-title>
         Quasar App
@@ -229,7 +229,9 @@ export default {
     search: function (word, skipQuery) {
       // console.log('search', word)
       document.activeElement.blur()
-      word = word.replace(/ /g, '')
+      /* eslint-disable */
+      word = word.replace(/[ 　]/g, '')
+      /* eslint-enable */
       this.resetJa()
       this.searchJa({word: word, noExample: false, noAudio: false, cb: this.showDuplicate, skipQuery: skipQuery})
       this.searchedWord.push(word)
