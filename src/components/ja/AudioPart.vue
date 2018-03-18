@@ -5,7 +5,7 @@
         <q-btn round small color="primary" icon="play arrow" @click="playAudio($event, index)" />
         {{a.word}}
         <span slot="subtitle">
-          {{a.type}}
+          <div v-if="a.user">{{a.user}}</div>{{a.type}}
           <q-btn v-if="a.word_id" small outline @click="requestForvo($event, a.word_id)">依頼<q-inner-loading :visible="forvoRequsting" /></q-btn>
         </span>
         <q-icon v-if="ja.multiple&&ja.audioSelected.includes(index)" slot="right">{{ja.audioSelected.indexOf(index)+1}}</q-icon>
