@@ -7,7 +7,16 @@
       <div v-if="ja.image" class="row justify-center">
         <q-toggle v-model="ja.useImage" label="使用" />
       </div>
-      
+      <div class="row justify-center">
+        <label for="file_photo">
+          <div id="add_photo_btn">アップロード</div>
+          <input type="file" 
+                 id="file_photo"
+                 accept="image/*" 
+                 style="display: none" 
+                 @change="upload">
+        </label>
+      </div>
   </div>
 </template>
 
@@ -26,6 +35,7 @@ import {
   QFixedPosition
 } from 'quasar'
 import { mapMutations, mapGetters } from 'vuex'
+const MAX_WIDTH = 350
 export default {
   name: 'image-part',
   mounted () {
@@ -37,7 +47,30 @@ export default {
     ...mapGetters(['ja'])
   },
   methods: {
-    ...mapMutations(['searchImage'])
+    ...mapMutations(['searchImage']),
+    upload (event) {
+      const file = event.target.files[0]
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      const reader = new FileReader()
+      reader.onload = event => {
+        const img = new Image()
+        img.onload = () => {
+          if (img.width > MAX_WIDTH) {
+            canvas.width = MAX_WIDTH
+            canvas.height = (MAX_WIDTH * img.height) / img.width
+          }
+          else {
+            canvas.width = img.width
+            canvas.height = img.height
+          }
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+          this.ja.image = canvas.toDataURL('image/png').replace(/^data:image\/(png|jpg);base64,/, '')
+        }
+        img.src = event.target.result
+      }
+      reader.readAsDataURL(file)
+    }
   },
   components: {
     QCard,
