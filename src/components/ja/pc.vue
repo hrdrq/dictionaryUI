@@ -283,8 +283,12 @@ export default {
       if (this.$route.query.skipQuery) {
         skipQuery = true
       }
+      var onlyAudio = false
+      if (this.$route.query.onlyAudio) {
+        onlyAudio = true
+      }
       this.word = this.$route.query.word
-      this.searchJa({word: this.word, noExample: false, noAudio: false, cb: this.showDuplicate, skipQuery: skipQuery})
+      this.searchJa({word: this.word, noExample: false, noAudio: false, cb: this.showDuplicate, skipQuery: skipQuery, onlyAudio: onlyAudio})
     }
     console.log(document.getElementsByClassName('q-input-target'))
     document.getElementsByClassName('q-input-target')[0].focus()
