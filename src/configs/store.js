@@ -396,9 +396,44 @@ let mutations = {
       }
     })
   },
-  searchJa (state, { word, noExample, noAudio, cb, skipQuery, alternative }) {
+  searchJa (state, { word, noExample, noAudio, cb, skipQuery, alternative, onlyAudio }) {
     state.ja.init = false
     // console.log('searchJa', word, noExample, noAudio)
+    if (onlyAudio) {
+      state.ja.audioLoading = true
+      state.ja.forvoLoading = true
+      axios.get(apiUrl + 'ja/search/audio/naver', {
+        params: {
+          word: word
+        }
+      }).then(response => {
+        state.ja.audioLoading = false
+        if (response.data.status === 'success') {
+          response.data.results.forEach(r => {
+            r.type = 'naver'
+          })
+          state.ja.audioList = state.ja.audioList.concat(response.data.results)
+        }
+      })
+      axios.get(apiUrl + 'ja/search/audio/forvo', {
+        params: {
+          word: word
+        }
+      }).then(response => {
+        state.ja.audioLoading = false
+        state.ja.forvoLoading = false
+        if (response.data.status === 'success') {
+          response.data.results.forEach(r => {
+            r.type = 'forvo'
+          })
+          state.ja.audioList = state.ja.audioList.concat(response.data.results)
+        }
+        else {
+          state.ja.noForvo = true
+        }
+      })
+      return
+    }
     if (!skipQuery && state.ja.word === '') {
       state.ja.word = word
       Loading.show()
