@@ -400,6 +400,7 @@ let mutations = {
     state.ja.init = false
     // console.log('searchJa', word, noExample, noAudio)
     if (onlyAudio) {
+      state.ja.word = word
       state.ja.audioLoading = true
       state.ja.forvoLoading = true
       axios.get(apiUrl + 'ja/search/audio/naver', {
