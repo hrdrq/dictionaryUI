@@ -18,6 +18,11 @@ $ npm run build
 $ npm run gc
 ```
 
+## パソコン
 ![パソコン](https://i.imgur.com/X9UEYBv.png "パソコン")
+
+## Chrome拡張機能
 ![Google Chrome拡張機能](https://i.imgur.com/pGSIoZZ.png "Google Chrome拡張機能")
+
+## スマホ
 ![スマホ](https://i.imgur.com/ZZ7QGoU.png "スマホ")
