@@ -1,3 +1,4 @@
+<!-- 日本語辞書コンポーネント -->
 <template>
   <div>
     <q-card v-for="(d, index) in ja.dictionaryList" :key="index" @click="select(index)" :color="ja.dictionarySelected.includes(index)?'dark':null">

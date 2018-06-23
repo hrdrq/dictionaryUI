@@ -1,3 +1,5 @@
+<!-- パソコンとGoogle Chrome拡張機能用 -->
+<!-- mobile.vueにも同じコードが多いので、統合したい -->
 <template>
   <q-layout ref="layout" view="lHh Lpr FFF">
     <div class="row">
@@ -6,9 +8,7 @@
       <div class="col">
         <q-toggle class="menu" v-model="ja.multiple" label="複数" />
         <q-btn color="white" class="text-black" @click="search(word,true)">SQ</q-btn>
-        <!-- <q-btn color="white" class="text-black" @click="openImage" v-shortkey="['meta', 'd']" @shortkey.native="openImage">画像</q-btn> -->
         <span v-shortkey="['meta', 'd']" @shortkey="openImage"/>
-        <!-- <q-btn color="white" class="text-black" @click="save" v-shortkey="['meta', 's']" @shortkey.native="save">保存</q-btn> -->
         <span v-shortkey="['meta', 's']" @shortkey="save"/>
       </div>
       <div class="col" style="padding-top: 20px"><q-radio v-for="o in typeOptions" :key="o.value" v-model="ja.type" :val="o.value" :label="o.text" /></div>
@@ -120,6 +120,8 @@ export default {
       'searchImage',
       'searchJaExample'
     ]),
+    // 音声ファイルを直接ダウンロードする
+    // このサイトと関係のないおまけ機能
     downloadAudio () {
       var audioUrl = this.ja.audioList[this.ja.audioSelected[0]].url
       a.href = this.apiUrl + 'proxy?url=' + audioUrl
@@ -129,16 +131,17 @@ export default {
       document.body.appendChild(a)
       a.click()
     },
+    // 例文のInfinite Scroll機能に使われる
     refresher: function (index, done) {
-      // console.log(this.ja.exampleList.length, this.ja.exampleEnd)
       if (this.ja.exampleList.length === 0 || this.ja.exampleEnd) {
         done()
-        // console.log('refresher do nothing')
         return
       }
       console.log('refresher')
       this.searchJaExample(done)
     },
+    // 画像のモーダルを開く
+    // 画像検索していなかったら検索をかける
     openImage () {
       if (!this.ja.word) {
         return
@@ -148,6 +151,7 @@ export default {
         this.searchImage()
       }
     },
+    // 単語を参照単語として保存する
     addAlternativeWord () {
       var dialog = null
       var doAdd = data => {
@@ -186,13 +190,13 @@ export default {
         ]
       })
     },
+    // 既存単語モーダルを閉じる
     closeDuplicate (event) {
-      // console.log('event', event)
-      // console.log('close', this.$refs.duplicateModal)
       this.$refs.duplicateModal.close()
       this.resetJa()
       this.reset()
     },
+    // 既存単語の情報を修正
     editDuplicate (searchExample) {
       this.ja.dictionaryList.push({
         word: this.ja.duplicate.word,
@@ -209,6 +213,7 @@ export default {
       this.$refs.duplicateModal.close('test')
       this.searchJa({word: this.word, noExample: !searchExample, noAudio: true, cb: null})
     },
+    // 既存単語モーダルを開く
     showDuplicate () {
       this.$refs.duplicateModal.open()
     },
@@ -219,9 +224,6 @@ export default {
       document.getElementsByClassName('q-input-target')[0].focus()
     },
     save: function () {
-      // this.word = ''
-      // this.alternativeWord = ''
-      // this.searchedWord = []
       this.saveJa(this.reset)
     },
     search: function (word, skipQuery) {
@@ -245,8 +247,8 @@ export default {
       this.searchJa({word: word, noExample: false, noAudio: false, cb: null, skipQuery: true, alternative: true})
       this.searchedWord.push(word)
     },
+    // アクセントの情報でruby化
     rubyKanaHtml: function (k, a) {
-      // console.log(kana, accentString)
       if (!a || a === '') {
         return k
       }
@@ -277,7 +279,6 @@ export default {
     }
   },
   mounted: function () {
-    // console.log(this)
     if (this.$route.query.word) {
       var skipQuery = false
       if (this.$route.query.skipQuery) {
@@ -292,9 +293,7 @@ export default {
     }
     console.log(document.getElementsByClassName('q-input-target'))
     document.getElementsByClassName('q-input-target')[0].focus()
-    // this.searchJa('テスト')
-    // console.log(this.$refs.word.$refs.input.$refs.input)
-    // this.$refs.word.$refs.input.$refs.input.focus()
+    // Google Chrome拡張機能の場合
     var self = this
     if (window.chrome && window.chrome.tabs) {
       window.chrome.tabs.executeScript({ code: 'window.getSelection().toString();' }, function (selection) {

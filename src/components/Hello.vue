@@ -1,3 +1,4 @@
+<!-- Quasarのデフォルトページ（使っていない） -->
 <template>
   <q-layout
     ref="layout"

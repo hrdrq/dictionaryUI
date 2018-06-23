@@ -1,3 +1,5 @@
+<!-- 例文コンポーネント -->
+<!-- Infinite Scroll対応 -->
 <template>
   <div>
     <q-infinite-scroll v-if="ja.word" :handler="refresher">

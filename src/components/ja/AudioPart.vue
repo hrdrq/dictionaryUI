@@ -1,3 +1,4 @@
+<!-- 音声コンポーネント -->
 <template>
   <div>
     <q-card v-for="(a, index) in ja.audioList" :key="index" @click="select(index)" :color="ja.audioSelected.includes(index)?'dark':null">
@@ -48,6 +49,7 @@ export default {
     }
   },
   methods: {
+    // Fサイトに新しい発音を依頼する
     addForvo () {
       var addForvoReq = (data) => {
         console.log(data.word)
@@ -104,6 +106,7 @@ export default {
         ]
       })
     },
+    // Fサイトに既存単語の新しい発音を依頼する
     requestForvo (event, wordId) {
       console.log(wordId)
       event.stopPropagation()
@@ -155,8 +158,6 @@ export default {
         this.audioCache[index + ''].currentTime = 0
         this.audioCache[index + ''].play()
       }
-      // var audio = new Audio(url)
-      // audio.play()
     },
     select: function (index) {
       if (this.ja.multiple) {

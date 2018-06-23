@@ -1,3 +1,4 @@
+<!-- 中国語辞書コンポーネント -->
 <template>
   <div>
     <q-card v-for="(c, index) in ja.chineseList" :key="index" @click="select(index)" :color="ja.chineseSelected.includes(index)?'dark':null">

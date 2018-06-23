@@ -4,8 +4,8 @@ const typeOptions = [
   {text: '名前', value: 'name'}
 ]
 
-// const apiUrl = '/'
-// const apiUrl = 'http://localhost:8889/'
+// 本番： apiUrl = '/'
+// 開発環境： apiUrl = 'http://localhost:8889/'
 const apiUrl = process.env.API_URL
 
 export default {

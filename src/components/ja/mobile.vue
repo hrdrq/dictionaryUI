@@ -1,3 +1,5 @@
+<!-- スマホ用 -->
+<!-- pc.vueにも同じコードが多いので、統合したい -->
 <template>
   <q-layout ref="layout" view="lHh Lpr FFF">
     <q-toolbar slot="header">
@@ -151,6 +153,7 @@ export default {
       'resetJa',
       'saveJa'
     ]),
+    // 単語を参照単語として保存する
     addAlternativeWord () {
       var dialog = null
       var doAdd = data => {
@@ -189,12 +192,13 @@ export default {
         ]
       })
     },
+    // 既存単語モーダルを閉じる
     closeDuplicate () {
-      // console.log('close', this.$refs.duplicateModal)
       this.$refs.duplicateModal.close()
       this.resetJa()
       this.reset()
     },
+    // 既存単語の情報を修正
     editDuplicate (searchExample) {
       this.ja.dictionaryList.push({
         word: this.ja.duplicate.word,
@@ -211,6 +215,7 @@ export default {
       this.$refs.duplicateModal.close()
       this.searchJa({word: this.word, noExample: !searchExample, noAudio: true, cb: null})
     },
+    // 既存単語モーダルを開く
     showDuplicate () {
       this.$refs.duplicateModal.open()
     },
@@ -243,8 +248,8 @@ export default {
       this.searchJa({word: word, noExample: false, noAudio: false, cb: null, skipQuery: true, alternative: true})
       this.searchedWord.push(word)
     },
+    // アクセントの情報でruby化
     rubyKanaHtml: function (k, a) {
-      // console.log(kana, accentString)
       if (!a || a === '') {
         return k
       }
@@ -280,12 +285,8 @@ export default {
     }
   },
   mounted: function () {
-    // console.log(this)
     console.log(document.getElementsByClassName('q-input-target'))
     this.focusSearch()
-    // this.searchJa('テスト')
-    // console.log(this.$refs.word.$refs.input.$refs.input)
-    // this.$refs.word.$refs.input.$refs.input.focus()
   },
   components: {
     QLayout,

@@ -1,3 +1,5 @@
+<!-- 画像コンポーネント -->
+<!-- 検索した結果を表示するや画像のアップロードもできる -->
 <template>
   <div>
       <q-card>
@@ -48,6 +50,7 @@ export default {
   },
   methods: {
     ...mapMutations(['searchImage']),
+    // 画像をアップロードしてbase64に変換
     upload (event) {
       const file = event.target.files[0]
       const canvas = document.createElement('canvas')

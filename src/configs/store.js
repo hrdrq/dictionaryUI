@@ -6,13 +6,11 @@ import settings from './settings'
 import {
   Dialog,
   ActionSheet,
-  // Toast,
   Loading,
   Alert
 } from 'quasar'
 
 const apiUrl = settings.apiUrl
-// const apiUrl = 'http://54.65.181.140:8889/'
 
 Vue.use(Vuex)
 
@@ -45,6 +43,7 @@ let ja = {
 }
 
 let state = {
+  // jaを複製
   ja: JSON.parse(JSON.stringify(ja))
 }
 
@@ -55,6 +54,7 @@ var htmlToText = (html) => {
 }
 
 let mutations = {
+  // cb：callback関数
   saveJa (state, cb) {
     var ja = state.ja
     var result = {
@@ -63,11 +63,13 @@ let mutations = {
     var save = (update) => {
       var url = 'ja/save'
       var method = 'post'
+      // 更新の場合
       if (update) {
         console.log('update')
         url = 'ja/update'
         method = 'put'
       }
+      // 新規保存の場合
       else {
         console.log('save')
         result.type = ja.type
@@ -111,21 +113,10 @@ let mutations = {
         }
       })
     }
+    // 単語は複数の定義がある場合
+    // 複数の定義などをマージする処理
     if (state.ja.multiple) {
       if (ja.dictionarySelected.length > 0) {
-        // var dictionary = ja.dictionaryList[ja.dictionarySelected[0]]
-        // if (dictionary.kana && dictionary.kana !== '') {
-        //   result.kana = dictionary.kana
-        // }
-        // if (dictionary.accent && dictionary.accent.length > 0) {
-        //   result.accent = dictionary.accent.join(',')
-        // }
-        // if (dictionary.gogen && dictionary.gogen !== '') {
-        //   result.gogen = dictionary.gogen
-        // }
-        // if (dictionary.meaning && dictionary.meaning !== '') {
-        //   result.meaning = dictionary.meaning
-        // }
         var dictionaryData = ja.dictionaryList.filter((e, index) => {
           return ja.dictionarySelected.includes(index)
         }).reduce((acc, cur) => {
@@ -152,8 +143,6 @@ let mutations = {
         })
       }
       if (ja.chineseSelected.length > 0) {
-        // var chinese = ja.chineseList[ja.chineseSelected[0]]
-        // result.chinese = chinese.meaning
         result.chinese = ja.chineseList.filter((e, index) => {
           return ja.chineseSelected.includes(index)
         }).reduce((acc, cur) => {
@@ -172,12 +161,6 @@ let mutations = {
         }, {example: '', listening_hint: ''})
         result.example = exampleData.example
         result.listening_hint = exampleData.listening_hint
-        // result.listening_hint = ja.exampleList.filter((e, index) => {
-        //   return ja.exampleSelected.includes(index)
-        // }).reduce((acc, cur) => {
-        //   acc += '<div>' + cur.listening_hint + '</div>'
-        //   return acc
-        // }, '')
         var extractedList = ja.exampleList.filter((e, index) => {
           return !ja.exampleSelected.includes(index)
         })
@@ -192,6 +175,7 @@ let mutations = {
       console.log('multiple', result)
       save()
     }
+    // 複数じゃない場合
     else {
       if (ja.dictionarySelected.length > 0 && ja.dictionaryList.length > 0) {
         var dictionary = ja.dictionaryList[ja.dictionarySelected[0]]
@@ -232,6 +216,8 @@ let mutations = {
         result.image = state.ja.image
       }
       console.log(result)
+      // 単語をマージ
+      // 情報を保存しない。参照する単語として保存
       var merge = (word, detailId) => {
         axios.post(apiUrl + 'ja/save/add-alternative-word', {
           word: word,
@@ -271,6 +257,8 @@ let mutations = {
           }
         })
       }
+      // 同じ読み方の単語の有無をチェック
+      // ある場合は「duplicated」を返す
       var checkKana = () => {
         Loading.show()
         axios.get(apiUrl + 'ja/save/query', {
@@ -310,8 +298,8 @@ let mutations = {
           }
         })
       }
+      // カナを更新する関数。下で使われる
       var modifyKana = (data) => {
-        // console.log('update', result.kana, data.kana)
         result.kana = data.kana
         checkKana()
       }
@@ -320,6 +308,7 @@ let mutations = {
         Loading.show()
         save(true)
       }
+      // ひらがなかカタカナ以外の文字がある場合は修正するように誘導
       else {
         if (!result.kana || result.kana === '' || result.kana.match(/[一-龠]/)) {
           Dialog.create({
@@ -345,9 +334,11 @@ let mutations = {
       }
     }
   },
+  // 最初の状態に戻す
   resetJa (state) {
     state.ja = JSON.parse(JSON.stringify(ja))
   },
+  // 画像検索したい時、掛ける
   searchImage (state) {
     if (state.ja.word === '') {
       return
@@ -361,10 +352,13 @@ let mutations = {
       state.ja.imageLoading = false
       if (response.data.status === 'success') {
         state.ja.image = response.data.result
+        // useImageがfalseだと保存しない
         state.ja.useImage = true
       }
     })
   },
+  // 例文を検索
+  // Infinite Scrollを対応
   searchJaExample (state, cb) {
     if (state.ja.searchingWord === '') {
       if (cb) {
@@ -396,6 +390,12 @@ let mutations = {
       }
     })
   },
+  // 日本語意味、中国語意味、音声を検索
+  // だいたいのコードは2014年に書いたものなので改修したい
+  // alternative：代替の単語で検索
+  // 例えば：りんご、リンゴ、林檎、苹果
+  // skipQuery：重複の単語の有無をチェックしない
+  // onlyAudio：音声のみを検索
   searchJa (state, { word, noExample, noAudio, cb, skipQuery, alternative, onlyAudio }) {
     state.ja.init = false
     // console.log('searchJa', word, noExample, noAudio)

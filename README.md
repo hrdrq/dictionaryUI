@@ -1,6 +1,6 @@
-# Quasar App
+# 個人用辞書のUI
 
-> A Quasar project
+## パソコンとスマホのブラウザとGoogle Chrome拡張機能が使える
 
 ## Build Setup
 
@@ -8,12 +8,16 @@
 # install dependencies
 $ npm install
 
-# serve with hot reload at localhost:8080
-$ quasar dev
+# 開発環境
+$ npm run dev
 
-# build for production with minification
-$ quasar build
+# 本番
+$ npm run build
 
-# lint code
-$ quasar lint
+# Google Chrome拡張機能
+$ npm run gc
 ```
+
+![パソコン](https://i.imgur.com/X9UEYBv.png "パソコン")
+![Google Chrome拡張機能](https://i.imgur.com/pGSIoZZ.png "Google Chrome拡張機能")
+![スマホ](https://i.imgur.com/ZZ7QGoU.png "スマホ")
