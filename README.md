@@ -5,7 +5,7 @@
 ## Build Setup
 
 ``` bash
-# install dependencies
+# dependenciesをインストール
 $ npm install
 
 # 開発環境
