@@ -2,6 +2,11 @@
 
 ## パソコンとスマホのブラウザとGoogle Chrome拡張機能が使える
 
+node -v 11.14.0
+
+npm -v 6.7.0
+
+
 ## Build Setup
 
 ``` bash
