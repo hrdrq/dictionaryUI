@@ -629,17 +629,13 @@ let mutations = {
         var dictionaryData = en.dictionaryList.filter((e, index) => {
           return en.dictionarySelected.includes(index)
         }).reduce((acc, cur) => {
-          acc.meaning += '<div class="duplicate_title">' + (cur.kana ? cur.kana : '') + ' ' + (cur.accent ? cur.accent : '') + ' ' + (cur.gogen ? cur.gogen : '') + '</div>'
+          acc.meaning += '<div class="duplicate_title">' + (cur.pron ? cur.pron : '') + '</div>'
           acc.meaning += '<div>' + cur.meaning + '</div>'
-          acc.kana += (cur.kana || '') + ';'
-          acc.accent += cur.accent.join(',') + ';'
-          acc.gogen += (cur.gogen || '') + ';'
+          acc.pron += (cur.pron || '') + ';'
           return acc
         }, {meaning: '', kana: '', accent: '', gogen: ''})
         result.meaning = dictionaryData.meaning
-        result.kana = dictionaryData.kana.slice(0, -1)
-        result.accent = dictionaryData.accent.slice(0, -1)
-        result.gogen = (dictionaryData.gogen.search(/[^;]/) > -1) ? dictionaryData.gogen : null
+        result.pron = dictionaryData.pron.slice(0, -1)
       }
       if (en.audioSelected.length > 0) {
         result.audio = en.audioList.filter((a, index) => {
@@ -679,34 +675,22 @@ let mutations = {
     else {
       if (en.dictionarySelected.length > 0 && en.dictionaryList.length > 0) {
         var dictionary = en.dictionaryList[en.dictionarySelected[0]]
-        if (dictionary.kana && dictionary.kana !== '') {
-          result.kana = dictionary.kana
-        }
-        if (dictionary.accent && dictionary.accent.length > 0) {
-          result.accent = dictionary.accent.join(',')
-        }
-        if (dictionary.gogen && dictionary.gogen !== '') {
-          result.gogen = dictionary.gogen
+        if (dictionary.pron && dictionary.pron !== '') {
+          result.pron = dictionary.pron
         }
         if (dictionary.meaning && dictionary.meaning !== '') {
           result.meaning = dictionary.meaning
         }
-      }
-      if (en.audioSelected.length > 0 && en.audioList.length > 0) {
-        var audio = en.audioList[en.audioSelected[0]]
-        result.audio = audio.url
+        if (en.audioSelected.length > 0 && en.audioList.length > 0) {
+          var audio = en.audioList[en.audioSelected[0]]
+          result.audio = audio.url
+        } else {
+          result.audio = dictionary.sound
+        }
       }
       if (en.exampleSelected.length > 0 && en.exampleList.length > 0) {
         var example = en.exampleList[en.exampleSelected[0]]
         result.example = example.sentence
-        result.listening_hint = example.listening_hint
-        extractedList = en.exampleList.filter((e, index) => {
-          return index !== en.exampleSelected[0]
-        })
-        result.examples = extractedList.slice(0, 10).reduce((acc, cur, i) => {
-          acc += '<p>' + cur.sentence + '</p>'
-          return acc
-        }, '')
       }
       if (state.en.useImage) {
         result.image = state.en.image
