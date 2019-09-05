@@ -42,9 +42,32 @@ let ja = {
   duplicate: null
 }
 
+let en = {
+  word: '',
+  type: 'normal',
+  multiple: false,
+  dictionaryList: [],
+  audioList: [],
+  exampleList: [],
+  dictionarySelected: [0],
+  audioSelected: [0],
+  exampleSelected: [0],
+  init: true,
+  dictionaryLoading: false,
+  forvoLoading: false,
+  noForvo: false,
+  exampleLoading: false,
+  exampleOffset: 1,
+  imageLoading: false,
+  image: null,
+  useImage: false,
+  duplicate: null
+}
+
 let state = {
   // jaを複製
-  ja: JSON.parse(JSON.stringify(ja))
+  ja: JSON.parse(JSON.stringify(ja)),
+  en: JSON.parse(JSON.stringify(en))
 }
 
 var htmlToText = (html) => {
@@ -339,7 +362,7 @@ let mutations = {
     state.ja = JSON.parse(JSON.stringify(ja))
   },
   // 画像検索したい時、掛ける
-  searchImage (state) {
+  searchJaImage (state) {
     if (state.ja.word === '') {
       return
     }
@@ -538,12 +561,298 @@ let mutations = {
       state.ja.exampleLoading = true
       mutations.searchJaExample(state)
     }
+  },
+
+  // cb：callback関数
+  saveEn (state, cb) {
+    var en = state.en
+    var result = {
+      word: en.word
+    }
+    var save = (update) => {
+      var url = 'en/save'
+      var method = 'post'
+      // 更新の場合
+      if (update) {
+        console.log('update')
+        url = 'en/update'
+        method = 'put'
+      }
+      // 新規保存の場合
+      else {
+        console.log('save')
+        result.type = en.type
+      }
+      axios({
+        method: method,
+        url: apiUrl + url,
+        data: result
+      }).then(response => {
+        Loading.hide()
+        if (response.data.status === 'success') {
+          console.log('save success')
+          mutations.resetEn(state)
+          if (cb) {
+            cb()
+          }
+        }
+        else {
+          Alert.create({
+            enter: 'bounceInRight',
+            leave: 'bounceOutRight',
+            color: 'positive',
+            icon: 'wifi',
+            html: update ? `更新失敗しました` : `保存失敗しました`,
+            position: 'top-right',
+            actions: [
+              {
+                label: 'Snooze',
+                handler () {
+                  console.log('acting')
+                }
+              },
+              {
+                label: 'Abort',
+                handler () {
+                  console.log('aborting')
+                }
+              }
+            ]
+          })
+        }
+      })
+    }
+    // 単語は複数の定義がある場合
+    // 複数の定義などをマージする処理
+    if (state.en.multiple) {
+      if (en.dictionarySelected.length > 0) {
+        var dictionaryData = en.dictionaryList.filter((e, index) => {
+          return en.dictionarySelected.includes(index)
+        }).reduce((acc, cur) => {
+          acc.meaning += '<div class="duplicate_title">' + (cur.kana ? cur.kana : '') + ' ' + (cur.accent ? cur.accent : '') + ' ' + (cur.gogen ? cur.gogen : '') + '</div>'
+          acc.meaning += '<div>' + cur.meaning + '</div>'
+          acc.kana += (cur.kana || '') + ';'
+          acc.accent += cur.accent.join(',') + ';'
+          acc.gogen += (cur.gogen || '') + ';'
+          return acc
+        }, {meaning: '', kana: '', accent: '', gogen: ''})
+        result.meaning = dictionaryData.meaning
+        result.kana = dictionaryData.kana.slice(0, -1)
+        result.accent = dictionaryData.accent.slice(0, -1)
+        result.gogen = (dictionaryData.gogen.search(/[^;]/) > -1) ? dictionaryData.gogen : null
+      }
+      if (en.audioSelected.length > 0) {
+        result.audio = en.audioList.filter((a, index) => {
+          return en.audioSelected.includes(index)
+        }).map((a, index) => {
+          return {
+            file_name: result.word + (index + 1),
+            url: a.url
+          }
+        })
+      }
+      if (en.exampleSelected.length > 0) {
+        var exampleData = en.exampleList.filter((e, index) => {
+          return en.exampleSelected.includes(index)
+        }).reduce((acc, cur) => {
+          acc.example += '<div>' + cur.sentence + '</div>'
+          acc.listening_hint += '<div>' + cur.listening_hint + '</div>'
+          return acc
+        }, {example: '', listening_hint: ''})
+        result.example = exampleData.example
+        result.listening_hint = exampleData.listening_hint
+        var extractedList = en.exampleList.filter((e, index) => {
+          return !en.exampleSelected.includes(index)
+        })
+        result.examples = extractedList.slice(0, 10).reduce((acc, cur, i) => {
+          acc += '<p>' + cur.sentence + '</p>'
+          return acc
+        }, '')
+      }
+      if (state.en.useImage) {
+        result.image = state.en.image
+      }
+      console.log('multiple', result)
+      save()
+    }
+    // 複数じゃない場合
+    else {
+      if (en.dictionarySelected.length > 0 && en.dictionaryList.length > 0) {
+        var dictionary = en.dictionaryList[en.dictionarySelected[0]]
+        if (dictionary.kana && dictionary.kana !== '') {
+          result.kana = dictionary.kana
+        }
+        if (dictionary.accent && dictionary.accent.length > 0) {
+          result.accent = dictionary.accent.join(',')
+        }
+        if (dictionary.gogen && dictionary.gogen !== '') {
+          result.gogen = dictionary.gogen
+        }
+        if (dictionary.meaning && dictionary.meaning !== '') {
+          result.meaning = dictionary.meaning
+        }
+      }
+      if (en.audioSelected.length > 0 && en.audioList.length > 0) {
+        var audio = en.audioList[en.audioSelected[0]]
+        result.audio = audio.url
+      }
+      if (en.exampleSelected.length > 0 && en.exampleList.length > 0) {
+        var example = en.exampleList[en.exampleSelected[0]]
+        result.example = example.sentence
+        result.listening_hint = example.listening_hint
+        extractedList = en.exampleList.filter((e, index) => {
+          return index !== en.exampleSelected[0]
+        })
+        result.examples = extractedList.slice(0, 10).reduce((acc, cur, i) => {
+          acc += '<p>' + cur.sentence + '</p>'
+          return acc
+        }, '')
+      }
+      if (state.en.useImage) {
+        result.image = state.en.image
+      }
+      console.log(result)
+    }
+  },
+  // 最初の状態に戻す
+  resetEn (state) {
+    state.en = JSON.parse(JSON.stringify(en))
+  },
+  // 画像検索したい時、掛ける
+  searchEnImage (state) {
+    if (state.en.word === '') {
+      return
+    }
+    state.en.imageLoading = true
+    axios.get(apiUrl + 'en/search/image', {
+      params: {
+        word: state.en.word
+      }
+    }).then(function (response) {
+      state.en.imageLoading = false
+      if (response.data.status === 'success') {
+        state.en.image = response.data.result
+        // useImageがfalseだと保存しない
+        state.en.useImage = true
+      }
+    })
+  },
+  // 例文を検索
+  // TODO
+  searchEnExample (state) {
+    axios.get(apiUrl + 'en/search/example', {
+      params: {
+        word: state.en.searchingWord
+      }
+    }).then(function (response) {
+      state.en.exampleLoading = false
+      if (response.data.status === 'success') {
+        state.en.exampleList = response.data.results
+      }
+    })
+  },
+  searchEnAudio (state, word) {
+    state.en.forvoLoading = true
+    axios.get(apiUrl + 'en/search/audio/forvo', {
+      params: {
+        word: word
+      }
+    }).then(response => {
+      state.en.forvoLoading = false
+      if (response.data.status === 'success') {
+        response.data.results.forEach(r => {
+          r.type = 'forvo'
+        })
+        state.en.audioList = state.en.audioList.concat(response.data.results)
+      }
+    })
+  },
+  // 日本語意味、音声を検索
+  // だいたいのコードは2014年に書いたものなので改修したい
+  // skipQuery：重複の単語の有無をチェックしない
+  // onlyAudio：音声のみを検索
+  searchEn (state, { word, noExample, noAudio, cb, skipQuery, onlyAudio }) {
+    state.en.init = false
+    if (onlyAudio) {
+      mutations.searchEnAudio(state, word)
+      return
+    }
+    if (!skipQuery && state.en.word === '') {
+      state.en.word = word
+      Loading.show()
+      axios.get(apiUrl + 'en/search/query', {
+        params: {
+          word: word
+        }
+      }).then(response => {
+        Loading.hide()
+        if (response.data.status === 'duplicated' || response.data.status === 'need_update') {
+          state.en.duplicate = response.data.result
+          if (cb) {
+            cb()
+          }
+        }
+        else {
+          // console.log(mutations, word, noExample, noAudio)
+          mutations.searchEn(state, { word: word, noExample: noExample, noAudio: noAudio, cb: null })
+        }
+      })
+      return
+    }
+    if (skipQuery && state.en.word === '') {
+      state.en.word = word
+    }
+    state.en.searchingWord = word
+    state.en.dictionaryLoading = true
+    axios.get(apiUrl + 'en/search/meaning', {
+      params: {
+        word: word
+      }
+    }).then(function (response) {
+      state.en.dictionaryLoading = false
+      if (response.data.status === 'success') {
+        response.data.results.forEach(r => {
+          if (!r.pron) {
+            r.pron = ''
+          }
+          r.meaning = '<div class="meaning">'
+          r.definitions.forEach(def => {
+            r.meaning += '<div class="definition"><div class="word_type">' + def.word_type + '</div>' // word_type
+            r.meaning += '<div class="meanings">'
+            def.meanings.forEach(meaning => {
+              r.meaning += '<div class="meaning_list"><div class="text">' + meaning.text + '</div>' // text
+              if (meaning.example) {
+                r.meaning += '<div class="example">' + meaning.example + '</div>' // example
+              }
+              if (meaning.subs) {
+                r.meaning += '<div class="subs">'
+                meaning.subs.forEach(sub => {
+                  r.meaning += '<div>' + sub + '</div>'
+                })
+                r.meaning += '</div>' // subs
+              }
+              r.meaning += '</div>' // meaning_list
+            })
+            r.meaning += '</div></div>' // meanings, definition
+          })
+          r.meaning += '</div>' // meaning
+        })
+        state.en.dictionaryList = state.en.dictionaryList.concat(response.data.results)
+      }
+    })
+    if (!noExample) {
+      state.en.exampleLoading = true
+      mutations.searchEnExample(state)
+    }
   }
 }
 
 let getters = {
   ja () {
     return state.ja
+  },
+  en () {
+    return state.en
   }
 }
 

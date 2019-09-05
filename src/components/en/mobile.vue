@@ -1,33 +1,76 @@
-<!-- パソコンとGoogle Chrome拡張機能用 -->
-<!-- mobile.vueにも同じコードが多いので、統合したい -->
+<!-- スマホ用 -->
+<!-- pc.vueにも同じコードが多いので、統合したい -->
 <template>
   <q-layout ref="layout" view="lHh Lpr FFF">
-    <div class="row">
-      <div class="col"><q-input v-model="word" placeholder="単語" @keydown.enter="word=word.replace(/[ 　]/g, '');search(word)" autofocus /></div>
-      <div class="col"><q-input v-model="alternativeWord" placeholder="代替検索" @keydown.enter="alternativeSearch(alternativeWord)" /></div>
-      <div class="col">
+    <q-toolbar slot="header">
+      <q-btn flat @click="$refs.layout.toggleLeft()">
+        <q-icon name="menu" />
+      </q-btn>
+      <q-input ref="word" icon="" inverted dark v-model="word" class="no-shadow" placeholder="単語" 
+        @keydown.enter="word=word.replace(/[ 　]/g, '');search(word)" autofocus
+      />
+      <!-- <q-toolbar-title>
+        Quasar App
+        <div slot="subtitle">Running on Quasar v{{$q.version}}</div>
+      </q-toolbar-title> -->
+    </q-toolbar>
+
+    <div slot="left">
+      <!--
+        Use <q-side-link> component
+        instead of <q-item> for
+        internal vue-router navigation
+      -->
+      <div>
         <q-toggle class="menu" v-model="ja.multiple" label="複数" />
-        <q-btn color="white" class="text-black" @click="search(word,true)">SQ</q-btn>
-        <span v-shortkey="['meta', 'd']" @shortkey="openImage"/>
-        <span v-shortkey="['meta', 's']" @shortkey="save"/>
       </div>
-      <div class="col" style="padding-top: 20px"><q-radio v-for="o in typeOptions" :key="o.value" v-model="ja.type" :val="o.value" :label="o.text" /></div>
-    </div>
-    <div class="row">
-      <div class="col part"><dictionary-part></dictionary-part><div class="relative-position part"><q-inner-loading :visible="ja.dictionaryLoading" /></div></div>
-      <div class="col part"><chinese-part></chinese-part><div class="relative-position part"><q-inner-loading :visible="ja.chineseLoading" /></div></div>
-      <div class="col part">
-        <q-infinite-scroll :handler="refresher" inline style="height: 100vh; overflow: auto">
-          <example-part></example-part>
-        </q-infinite-scroll>
-        <div class="relative-position part"><q-inner-loading :visible="ja.exampleLoading" /></div>
+      <div>
+        <q-btn class="menu" outline @click="search(word,true)">Skip Query</q-btn>
       </div>
-      <div class="col part"><audio-part></audio-part><div class="relative-position part"><q-inner-loading :visible="ja.audioLoading||ja.forvoLoading" /></div></div>
+      <div style="padding-left:20px">
+        <q-radio v-for="o in typeOptions" :key="o.value" v-model="ja.type" :val="o.value" :label="o.text" />
+      </div>
+      <div style="padding:0 20px 0 20px">
+        <q-input v-model="alternativeWord" float-label="代替検索" :after="[{icon: 'arrow_forward', handler () {alternativeSearch(alternativeWord)}}]" @keydown.enter="alternativeSearch(alternativeWord)" />
+      </div>
     </div>
-    <q-modal ref="imageModal" :content-css="{padding: '15px'}">
-      <image-part></image-part>
-    </q-modal>
-    <q-modal maximized ref="duplicateModal" @escape-key="closeDuplicate" :content-css="{padding: '15px'}">
+
+     <!--
+      Replace following <div> with
+      <router-view /> component
+      if using subRoutes
+    -->
+    <router-view></router-view>
+    <!-- <q-toolbar slot="footer"> -->
+    <q-tabs slot="footer">
+      <!-- Tabs - notice slot="title" -->
+      <q-route-tab icon="search" to="dictionary" exact slot="title" :count="ja.dictionaryList.length">
+        <q-inner-loading :visible="ja.dictionaryLoading" />
+      </q-route-tab>
+      <q-route-tab icon="audiotrack" to="audio" exact slot="title" :count="ja.audioList.length">
+        <q-inner-loading :visible="ja.audioLoading" />
+      </q-route-tab>
+      <q-route-tab icon="star border" to="chinese" exact slot="title" :count="ja.chineseList.length">
+        <q-inner-loading :visible="ja.chineseLoading" />
+      </q-route-tab>
+      <q-route-tab icon="list" to="example" exact slot="title" :count="ja.exampleList.length">
+        <q-inner-loading :visible="ja.exampleLoading" />
+      </q-route-tab>
+      <q-route-tab icon="photo" to="image" exact slot="title">
+      </q-route-tab>
+    </q-tabs>
+    <!-- </q-toolbar> -->
+    <q-fixed-position corner="bottom-left" :offset="[14, 10]">
+      <q-btn color="secondary" round @click="focusSearch">
+        <q-icon name="keyboard arrow up" />
+      </q-btn>
+    </q-fixed-position>
+    <q-fixed-position v-if="ja.word" corner="bottom-right" :offset="[14, 10]">
+      <q-btn color="secondary" round @click="save">
+        <q-icon name="save" />
+      </q-btn>
+    </q-fixed-position>
+    <q-modal ref="duplicateModal" :content-css="{padding: '15px'}">
       <div v-if="ja.duplicate" style="padding-bottom: 50px">
         <h4>{{ja.duplicate.word}}</h4>
         <h5 v-if="ja.duplicate.kana" class="kana" v-html="rubyKanaHtml(ja.duplicate.kana, ja.duplicate.accent)"></h5>
@@ -35,28 +78,27 @@
         <div v-if="ja.duplicate.meaning" v-html="ja.duplicate.meaning"></div>
         <div v-if="ja.duplicate.chinese" v-html="ja.duplicate.chinese"></div>
       </div>
-      <q-fixed-position corner="top-right" :offset="[260, 20]">
+      <q-fixed-position v-if="" corner="bottom-left" :offset="[18, -40]">
         <q-btn color="primary" round @click="closeDuplicate">
           <q-icon name="close" />
         </q-btn>
       </q-fixed-position>
-      <q-fixed-position corner="top-right" :offset="[190, 20]">
+      <q-fixed-position v-if="" corner="bottom-right" :offset="[162, -40]">
         <q-btn color="primary" round @click="addAlternativeWord">
           <q-icon name="add" />
         </q-btn>
       </q-fixed-position>
-      <q-fixed-position corner="top-right" :offset="[120, 20]">
-        <q-btn color="primary" round @click="editDuplicate(false)" v-shortkey="['meta', 'e']" @shortkey.native="editDuplicate(false)">
+      <q-fixed-position v-if="" corner="bottom-right" :offset="[90, -40]">
+        <q-btn color="primary" round @click="editDuplicate(false)">
           <q-icon name="mode edit" />
         </q-btn>
       </q-fixed-position>
-      <q-fixed-position corner="top-right" :offset="[50, 20]">
+      <q-fixed-position v-if="" corner="bottom-right" :offset="[18, -40]">
         <q-btn color="primary" round @click="editDuplicate(true)">
           <q-icon name="list" />
         </q-btn>
       </q-fixed-position>
     </q-modal>
-    <span v-shortkey="['meta', 'y']" @shortkey="downloadAudio"/>
   </q-layout>
 </template>
 
@@ -85,18 +127,11 @@ import {
   QFixedPosition,
   QRadio,
   QInput,
-  QModal,
-  QInfiniteScroll
+  QModal
 } from 'quasar'
 import settings from '@/configs/settings'
 import { mapMutations, mapGetters } from 'vuex'
 import axios from 'axios'
-import DictionaryPart from './DictionaryPart'
-import AudioPart from './AudioPart'
-import ChinesePart from './ChinesePart'
-import ExamplePart from './ExamplePart'
-import ImagePart from './ImagePart'
-var a = document.createElement('a')
 export default {
   name: 'index',
   computed: {
@@ -116,41 +151,8 @@ export default {
     ...mapMutations([
       'searchJa',
       'resetJa',
-      'saveJa',
-      'searchJaImage',
-      'searchJaExample'
+      'saveJa'
     ]),
-    // 音声ファイルを直接ダウンロードする
-    // このサイトと関係のないおまけ機能
-    downloadAudio () {
-      var audioUrl = this.ja.audioList[this.ja.audioSelected[0]].url
-      a.href = this.apiUrl + 'proxy?url=' + audioUrl
-      console.log(a.href)
-      a.download = this.word + '.mp3'
-      a.style.display = 'none'
-      document.body.appendChild(a)
-      a.click()
-    },
-    // 例文のInfinite Scroll機能に使われる
-    refresher: function (index, done) {
-      if (this.ja.exampleList.length === 0 || this.ja.exampleEnd) {
-        done()
-        return
-      }
-      console.log('refresher')
-      this.searchJaExample(done)
-    },
-    // 画像のモーダルを開く
-    // 画像検索していなかったら検索をかける
-    openImage () {
-      if (!this.ja.word) {
-        return
-      }
-      this.$refs.imageModal.open()
-      if (!this.ja.image && !this.ja.imageLoading) {
-        this.searchJaImage()
-      }
-    },
     // 単語を参照単語として保存する
     addAlternativeWord () {
       var dialog = null
@@ -159,7 +161,7 @@ export default {
         Loading.show()
         axios.post(this.apiUrl + 'ja/save/add-alternative-word', {
           word: data.wordToAdd,
-          detail_id: this.ja.duplicate.detail_id
+          detail_id: this.ja.duplicate.id
         }).then(response => {
           Loading.hide()
           console.log(dialog)
@@ -191,7 +193,7 @@ export default {
       })
     },
     // 既存単語モーダルを閉じる
-    closeDuplicate (event) {
+    closeDuplicate () {
       this.$refs.duplicateModal.close()
       this.resetJa()
       this.reset()
@@ -210,7 +212,7 @@ export default {
         kana: this.ja.duplicate.kana,
         meaning: this.ja.duplicate.chinese
       })
-      this.$refs.duplicateModal.close('test')
+      this.$refs.duplicateModal.close()
       this.searchJa({word: this.word, noExample: !searchExample, noAudio: true, cb: null})
     },
     // 既存単語モーダルを開く
@@ -221,21 +223,20 @@ export default {
       this.word = ''
       this.alternativeWord = ''
       this.searchedWord = []
-      document.getElementsByClassName('q-input-target')[0].focus()
+      this.focusSearch()
     },
     save: function () {
+      // this.word = ''
+      // this.alternativeWord = ''
+      // this.searchedWord = []
       this.saveJa(this.reset)
     },
     search: function (word, skipQuery) {
-      if (!word) {
-        console.log('search no word')
-        return
-      }
+      // console.log('search', word)
+      document.activeElement.blur()
       /* eslint-disable */
       word = word.replace(/[ 　]/g, '')
       /* eslint-enable */
-      console.log('search[' + word + ']')
-      document.activeElement.blur()
       this.resetJa()
       this.searchJa({word: word, noExample: false, noAudio: false, cb: this.showDuplicate, skipQuery: skipQuery})
       this.searchedWord.push(word)
@@ -276,32 +277,16 @@ export default {
         result += div.outerHTML
       }
       return result
+    },
+    focusSearch () {
+      var searchEl = document.getElementsByClassName('q-input-target')[1]
+      searchEl.focus()
+      searchEl.setSelectionRange(0, 9999)
     }
   },
   mounted: function () {
-    if (this.$route.query.word) {
-      var skipQuery = false
-      if (this.$route.query.skipQuery) {
-        skipQuery = true
-      }
-      var onlyAudio = false
-      if (this.$route.query.onlyAudio) {
-        onlyAudio = true
-      }
-      this.word = this.$route.query.word
-      this.searchJa({word: this.word, noExample: false, noAudio: false, cb: this.showDuplicate, skipQuery: skipQuery, onlyAudio: onlyAudio})
-    }
     console.log(document.getElementsByClassName('q-input-target'))
-    document.getElementsByClassName('q-input-target')[0].focus()
-    // Google Chrome拡張機能の場合
-    var self = this
-    if (window.chrome && window.chrome.tabs) {
-      window.chrome.tabs.executeScript({ code: 'window.getSelection().toString();' }, function (selection) {
-        console.log('word:', selection[0])
-        self.word = selection[0]
-        self.search(self.word)
-      })
-    }
+    this.focusSearch()
   },
   components: {
     QLayout,
@@ -324,23 +309,14 @@ export default {
     QFixedPosition,
     QRadio,
     QInput,
-    QModal,
-    DictionaryPart,
-    AudioPart,
-    ChinesePart,
-    ExamplePart,
-    ImagePart,
-    QInfiniteScroll
+    QModal
   }
 }
 </script>
 
 <style>
-  .part {
-    min-height: 300px
-  }
   .menu {
-    padding: 20px;
+    margin: 20px;
   }
   .modal-scroll {
     max-height: 450px;
@@ -367,17 +343,5 @@ export default {
     background-size: 0.12em 0.36em;
     background-repeat: no-repeat;
     background-position: right top;
-  }
-  .part {
-    overflow-y: scroll;
-    max-height: calc(100vh - 64px);
-    /*overflow: hidden;*/
-    /*box-sizing:border-box;*/
-    /*display:inline-block;*/
-    /*padding: 5px 10px;*/
-  }
-  body{
-    min-width: 800px;
-    min-height: 600px;
   }
 </style>

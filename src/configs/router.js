@@ -41,6 +41,20 @@ export default new VueRouter({
       path: '/ja/example',
       component: load('ja/example')
     },
+    {
+      path: '/en/mobile',
+      component: load('en/mobile'),
+      children: [
+        { path: 'dictionary', component: load('en/DictionaryPart') },
+        { path: 'audio', component: load('en/AudioPart') },
+        { path: 'example', component: load('en/ExamplePart') },
+        { path: 'image', component: load('en/ImagePart') }
+      ]
+    },
+    {
+      path: '/en/pc',
+      component: load('en/pc')
+    },
     { path: '*', component: load('Error404') } // Not found
   ]
 })

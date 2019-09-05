@@ -3,11 +3,11 @@
 <template>
   <div>
       <q-card>
-        <img v-if="ja.image" :src="'data:image/png;base64,'+ja.image">
-        <q-inner-loading :visible="ja.imageLoading" />
+        <img v-if="en.image" :src="'data:image/png;base64,'+en.image">
+        <q-inner-loading :visible="en.imageLoading" />
       </q-card>
-      <div v-if="ja.image" class="row justify-center">
-        <q-toggle v-model="ja.useImage" label="使用" />
+      <div v-if="en.image" class="row justify-center">
+        <q-toggle v-model="en.useImage" label="使用" />
       </div>
       <div class="row justify-center">
         <label for="file_photo">
@@ -41,15 +41,15 @@ const MAX_WIDTH = 350
 export default {
   name: 'image-part',
   mounted () {
-    if (!this.ja.image) {
-      this.searchJaImage()
+    if (!this.en.image) {
+      this.searchEnImage()
     }
   },
   computed: {
-    ...mapGetters(['ja'])
+    ...mapGetters(['en'])
   },
   methods: {
-    ...mapMutations(['searchJaImage']),
+    ...mapMutations(['searchEnImage']),
     // 画像をアップロードしてbase64に変換
     upload (event) {
       const file = event.target.files[0]
@@ -68,7 +68,7 @@ export default {
             canvas.height = img.height
           }
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-          this.ja.image = canvas.toDataURL('image/png').replace(/^data:image\/(png|jpg);base64,/, '')
+          this.en.image = canvas.toDataURL('image/png').replace(/^data:image\/(png|jpg);base64,/, '')
         }
         img.src = event.target.result
       }
