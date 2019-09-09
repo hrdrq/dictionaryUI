@@ -54,7 +54,7 @@ let en = {
   exampleSelected: [0],
   init: true,
   dictionaryLoading: false,
-  forvoLoading: false,
+  audioLoading: false,
   noForvo: false,
   exampleLoading: false,
   exampleOffset: 1,
@@ -633,11 +633,12 @@ let mutations = {
           acc.meaning += '<div>' + cur.meaning + '</div>'
           acc.pron += (cur.pron || '') + ';'
           return acc
-        }, {meaning: '', kana: '', accent: '', gogen: ''})
+        }, {meaning: '', pron: ''})
         result.meaning = dictionaryData.meaning
         result.pron = dictionaryData.pron.slice(0, -1)
       }
-      if (en.audioSelected.length > 0) {
+      if (en.audioSelected.length > 0 && en.audioList.length > 0) {
+        console.log('xtxt')
         result.audio = en.audioList.filter((a, index) => {
           return en.audioSelected.includes(index)
         }).map((a, index) => {
@@ -647,23 +648,25 @@ let mutations = {
           }
         })
       }
+      else {
+        result.audio = en.dictionaryList.filter((a, index) => {
+          return en.dictionarySelected.includes(index)
+        }).map((a, index) => {
+          console.log('audio a', a)
+          return {
+            file_name: result.word + (index + 1),
+            url: a.sound
+          }
+        })
+      }
       if (en.exampleSelected.length > 0) {
         var exampleData = en.exampleList.filter((e, index) => {
           return en.exampleSelected.includes(index)
         }).reduce((acc, cur) => {
           acc.example += '<div>' + cur.sentence + '</div>'
-          acc.listening_hint += '<div>' + cur.listening_hint + '</div>'
           return acc
-        }, {example: '', listening_hint: ''})
+        }, {example: ''})
         result.example = exampleData.example
-        result.listening_hint = exampleData.listening_hint
-        var extractedList = en.exampleList.filter((e, index) => {
-          return !en.exampleSelected.includes(index)
-        })
-        result.examples = extractedList.slice(0, 10).reduce((acc, cur, i) => {
-          acc += '<p>' + cur.sentence + '</p>'
-          return acc
-        }, '')
       }
       if (state.en.useImage) {
         result.image = state.en.image
@@ -684,7 +687,8 @@ let mutations = {
         if (en.audioSelected.length > 0 && en.audioList.length > 0) {
           var audio = en.audioList[en.audioSelected[0]]
           result.audio = audio.url
-        } else {
+        }
+        else {
           result.audio = dictionary.sound
         }
       }
@@ -696,6 +700,7 @@ let mutations = {
         result.image = state.en.image
       }
       console.log(result)
+      save()
     }
   },
   // 最初の状態に戻す
@@ -736,13 +741,13 @@ let mutations = {
     })
   },
   searchEnAudio (state, word) {
-    state.en.forvoLoading = true
+    state.en.audioLoading = true
     axios.get(apiUrl + 'en/search/audio/forvo', {
       params: {
         word: word
       }
     }).then(response => {
-      state.en.forvoLoading = false
+      state.en.audioLoading = false
       if (response.data.status === 'success') {
         response.data.results.forEach(r => {
           r.type = 'forvo'

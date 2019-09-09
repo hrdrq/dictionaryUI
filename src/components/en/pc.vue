@@ -157,7 +157,7 @@ export default {
         return
       }
       /* eslint-disable */
-      word = word.replace(/[ 　]/g, '')
+      word = word.replace(/^\s+|\s+$/g, '')
       /* eslint-enable */
       console.log('search[' + word + ']')
       document.activeElement.blur()

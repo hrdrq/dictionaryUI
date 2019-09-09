@@ -33,9 +33,14 @@ import {
 } from 'quasar'
 import settings from '@/configs/settings'
 import axios from 'axios'
-import { mapGetters } from 'vuex'
+import { mapMutations, mapGetters } from 'vuex'
 export default {
   name: 'audio-part',
+  mounted () {
+    if (this.$route.path.includes('mobile') && this.en.audioList.length === 0) {
+      this.searchEnAudio(this.en.word)
+    }
+  },
   computed: {
     ...mapGetters(['en'])
   },
@@ -49,6 +54,7 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(['searchEnAudio']),
     // Fサイトに新しい発音を依頼する
     addForvo () {
       var addForvoReq = (data) => {
