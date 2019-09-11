@@ -569,6 +569,7 @@ let mutations = {
     var result = {
       word: en.word
     }
+    Loading.show()
     var save = (update) => {
       var url = 'en/save'
       var method = 'post'
