@@ -156,9 +156,12 @@ export default {
   .meaning .word_type {
     font-weight: bold;
   }
-  .meaning .meaning_list {
+  .meaning .meaning_list, .meaning .subs div {
     display:list-item;
     margin-left: 1.3em;
+  }
+  .meaning .subs div {
+    list-style-type: circle;
   }
   .meaning .example {
     color: grey;
