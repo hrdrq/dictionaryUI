@@ -163,13 +163,13 @@ export default {
     save: function () {
       // this.word = ''
       // this.searchedWord = []
-      this.saveEn(this.reset)
+      this.saveEn({word: this.word, cb: this.reset})
     },
     search: function (word, skipQuery) {
       // console.log('search', word)
       document.activeElement.blur()
       /* eslint-disable */
-      word = word.replace(/^\s+|\s+$/g, '')
+      // word = word.replace(/^\s+|\s+$/g, '')
       /* eslint-enable */
       this.resetEn()
       this.searchEn({word: word, noExample: false, noAudio: false, cb: this.showDuplicate, skipQuery: skipQuery})

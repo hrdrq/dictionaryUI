@@ -564,10 +564,10 @@ let mutations = {
   },
 
   // cb：callback関数
-  saveEn (state, cb) {
+  saveEn (state, {word, cb}) {
     var en = state.en
     var result = {
-      word: en.word
+      word: word
     }
     Loading.show()
     var save = (update) => {

@@ -149,7 +149,7 @@ export default {
       document.getElementsByClassName('q-input-target')[0].focus()
     },
     save: function () {
-      this.saveEn(this.reset)
+      this.saveEn({word: this.word, cb: this.reset})
     },
     search: function (word, skipQuery) {
       if (!word) {
@@ -157,7 +157,7 @@ export default {
         return
       }
       /* eslint-disable */
-      word = word.replace(/^\s+|\s+$/g, '')
+      // word = word.replace(/^\s+|\s+$/g, '')
       /* eslint-enable */
       console.log('search[' + word + ']')
       document.activeElement.blur()
