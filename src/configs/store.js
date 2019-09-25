@@ -701,7 +701,22 @@ let mutations = {
         result.image = state.en.image
       }
       console.log(result)
-      save()
+      if (!result.audio) {
+        Loading.hide()
+        Dialog.create({
+          title: 'No audio. Do it?',
+          buttons: [
+            'Cancel',
+            {
+              label: 'Ok',
+              handler: () => { Loading.show(); save() }
+            }
+          ]
+        })
+      }
+      else {
+        save()
+      }
     }
   },
   // 最初の状態に戻す
