@@ -18,7 +18,7 @@
       <div class="col part"><audio-part></audio-part><div class="relative-position part"><q-inner-loading :visible="en.forvoLoading" /></div></div>
     </div>
     <q-modal ref="imageModal" :content-css="{padding: '15px'}">
-      <image-part></image-part>
+      <image-part ref="image_part"></image-part>
     </q-modal>
     <q-modal maximized ref="duplicateModal" @escape-key="closeDuplicate" :content-css="{padding: '15px'}">
       <div v-if="en.duplicate" style="padding-bottom: 50px">
@@ -120,7 +120,7 @@ export default {
       }
       this.$refs.imageModal.open()
       if (!this.en.image && !this.en.imageLoading) {
-        this.searchEnImage()
+        this.searchEnImage(this.$refs.image_part.update_canvas)
       }
     },
     // 既存単語モーダルを閉じる

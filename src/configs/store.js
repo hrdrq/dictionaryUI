@@ -362,7 +362,7 @@ let mutations = {
     state.ja = JSON.parse(JSON.stringify(ja))
   },
   // 画像検索したい時、掛ける
-  searchJaImage (state) {
+  searchJaImage (state, cb) {
     if (state.ja.word === '') {
       return
     }
@@ -377,6 +377,7 @@ let mutations = {
         state.ja.image = response.data.result
         // useImageがfalseだと保存しない
         state.ja.useImage = true
+        cb()
       }
     })
   },
@@ -724,7 +725,7 @@ let mutations = {
     state.en = JSON.parse(JSON.stringify(en))
   },
   // 画像検索したい時、掛ける
-  searchEnImage (state) {
+  searchEnImage (state, cb) {
     if (state.en.word === '') {
       return
     }
@@ -739,6 +740,7 @@ let mutations = {
         state.en.image = response.data.result
         // useImageがfalseだと保存しない
         state.en.useImage = true
+        cb()
       }
     })
   },

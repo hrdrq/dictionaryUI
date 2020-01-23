@@ -25,7 +25,7 @@
       <div class="col part"><audio-part></audio-part><div class="relative-position part"><q-inner-loading :visible="ja.audioLoading||ja.forvoLoading" /></div></div>
     </div>
     <q-modal ref="imageModal" :content-css="{padding: '15px'}">
-      <image-part></image-part>
+      <image-part ref="image_part"></image-part>
     </q-modal>
     <q-modal maximized ref="duplicateModal" @escape-key="closeDuplicate" :content-css="{padding: '15px'}">
       <div v-if="ja.duplicate" style="padding-bottom: 50px">
@@ -148,7 +148,7 @@ export default {
       }
       this.$refs.imageModal.open()
       if (!this.ja.image && !this.ja.imageLoading) {
-        this.searchJaImage()
+        this.searchJaImage(this.$refs.image_part.update_canvas)
       }
     },
     // 単語を参照単語として保存する
