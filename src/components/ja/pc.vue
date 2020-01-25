@@ -15,7 +15,6 @@
     </div>
     <div class="row">
       <div class="col part"><dictionary-part></dictionary-part><div class="relative-position part"><q-inner-loading :visible="ja.dictionaryLoading" /></div></div>
-      <div class="col part"><chinese-part></chinese-part><div class="relative-position part"><q-inner-loading :visible="ja.chineseLoading" /></div></div>
       <div class="col part">
         <q-infinite-scroll :handler="refresher" inline style="height: 100vh; overflow: auto">
           <example-part></example-part>
@@ -221,6 +220,8 @@ export default {
       this.word = ''
       this.alternativeWord = ''
       this.searchedWord = []
+      this.$refs.image_part.clear_canvas()
+      this.$refs.imageModal.close()
       document.getElementsByClassName('q-input-target')[0].focus()
     },
     save: function () {

@@ -134,8 +134,9 @@ function getTouchPos(e) {
     if(e.touches) {
         if (e.touches.length == 1) { // Only deal with one finger
             var touch = e.touches[0]; // Get the information for finger #1
-            touchX=touch.pageX-touch.target.offsetLeft;
-            touchY=touch.pageY-touch.target.offsetTop;
+            const rect = e.target.getBoundingClientRect()
+            touchX=touch.clientX - window.pageXOffset - rect.left;
+            touchY=touch.clientY - window.pageYOffset - rect.top;
         }
     }
 }
@@ -191,7 +192,12 @@ export default {
       setTimeout(() => {
         ctx.drawImage(this.$refs.img_tag, 0,0)
         event_listen(canvas, ctx, this.en)
-      }, 10)
+      }, 100)
+    },
+    clear_canvas () {
+      const canvas = this.$refs.sketchpad
+      const ctx = canvas.getContext('2d')
+      ctx.clearRect(0, 0, 360, 360);
     },
     // 画像をアップロードしてbase64に変換
     upload (event) {

@@ -50,9 +50,6 @@
       <q-route-tab icon="audiotrack" to="audio" exact slot="title" :count="ja.audioList.length">
         <q-inner-loading :visible="ja.audioLoading" />
       </q-route-tab>
-      <q-route-tab icon="star border" to="chinese" exact slot="title" :count="ja.chineseList.length">
-        <q-inner-loading :visible="ja.chineseLoading" />
-      </q-route-tab>
       <q-route-tab icon="list" to="example" exact slot="title" :count="ja.exampleList.length">
         <q-inner-loading :visible="ja.exampleLoading" />
       </q-route-tab>

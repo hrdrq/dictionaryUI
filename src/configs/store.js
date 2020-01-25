@@ -21,18 +21,15 @@ let ja = {
   multiple: false,
   dictionaryList: [],
   audioList: [],
-  chineseList: [],
   exampleList: [],
   dictionarySelected: [0],
   audioSelected: [0],
-  chineseSelected: [0],
   exampleSelected: [0],
   init: true,
   dictionaryLoading: false,
   audioLoading: false,
   forvoLoading: false,
   noForvo: false,
-  chineseLoading: false,
   exampleLoading: false,
   exampleOffset: 1,
   exampleEnd: false,
@@ -165,15 +162,6 @@ let mutations = {
           }
         })
       }
-      if (ja.chineseSelected.length > 0) {
-        result.chinese = ja.chineseList.filter((e, index) => {
-          return ja.chineseSelected.includes(index)
-        }).reduce((acc, cur) => {
-          acc += '<div class="duplicate_title">' + cur.kana + '</div>'
-          acc += '<div>' + cur.meaning + '</div>'
-          return acc
-        }, '')
-      }
       if (ja.exampleSelected.length > 0) {
         var exampleData = ja.exampleList.filter((e, index) => {
           return ja.exampleSelected.includes(index)
@@ -218,10 +206,6 @@ let mutations = {
       if (ja.audioSelected.length > 0 && ja.audioList.length > 0) {
         var audio = ja.audioList[ja.audioSelected[0]]
         result.audio = audio.url
-      }
-      if (ja.chineseSelected.length > 0 && ja.chineseList.length > 0) {
-        var chinese = ja.chineseList[ja.chineseSelected[0]]
-        result.chinese = chinese.meaning
       }
       if (ja.exampleSelected.length > 0 && ja.exampleList.length > 0) {
         var example = ja.exampleList[ja.exampleSelected[0]]
@@ -486,7 +470,6 @@ let mutations = {
     }
     state.ja.searchingWord = word
     state.ja.dictionaryLoading = true
-    state.ja.chineseLoading = true
     axios.get(apiUrl + 'ja/search/meaning', {
       params: {
         word: word
@@ -545,16 +528,6 @@ let mutations = {
         }
       })
     }
-    axios.get(apiUrl + 'ja/search/chinese', {
-      params: {
-        word: word
-      }
-    }).then(function (response) {
-      state.ja.chineseLoading = false
-      if (response.data.status === 'success') {
-        state.ja.chineseList = state.ja.chineseList.concat(response.data.results)
-      }
-    })
     if (!noExample) {
       if (alternative) {
         state.ja.exampleOffset = 1

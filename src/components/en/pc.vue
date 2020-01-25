@@ -146,6 +146,8 @@ export default {
     reset () {
       this.word = ''
       this.searchedWord = []
+      this.$refs.image_part.clear_canvas()
+      this.$refs.imageModal.close()
       document.getElementsByClassName('q-input-target')[0].focus()
     },
     save: function () {
