@@ -54,7 +54,7 @@ export default {
       }
     },
     highlight: function (senetnce) {
-      return senetnce.replace(new RegExp(this.en.word, 'ig'), '<b>' + this.en.word + '</b>')
+      return senetnce.replace(new RegExp('(' + this.en.word + ')', 'ig'), '<b>$1</b>')
     }
   },
   components: {

@@ -105,7 +105,7 @@ export default {
     // このサイトと関係のないおまけ機能
     downloadAudio () {
       var audioUrl = this.en.audioList[this.en.audioSelected[0]].url
-      a.href = this.apiUrl + 'proxy?url=' + audioUrl
+      a.href = this.apiUrl + 'proxy?url=' + audioUrl + '&filename=' + this.word + '.mp3'
       console.log(a.href)
       a.download = this.word + '.mp3'
       a.style.display = 'none'
