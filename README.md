@@ -1,5 +1,7 @@
 # 個人用辞書のUI
 
+UI for [dictionary][https://github.com/hrdrq/dictionary]
+
 ## パソコンとスマホのブラウザとGoogle Chrome拡張機能が使える
 
 node -v 11.14.0
